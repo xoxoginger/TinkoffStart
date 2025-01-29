@@ -32,103 +32,81 @@
 */
 
 
-//Не сделанное до конца решение - нет кейсов, когда все diff-ы разные + неоптимально
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        
         int n = scanner.nextInt();
-        int x = scanner.nextInt();
-        int y = scanner.nextInt();
-        int z = scanner.nextInt();
-
+        long x = scanner.nextLong();
+        long y = scanner.nextLong();
+        long z = scanner.nextLong();
         long[] a = new long[n];
-        for (int i = 0; i < n; i++) a[i] = scanner.nextLong();
-      
-        long[] differenceX = new long[n];
-        long[] differenceY = new long[n];
-        long[] differenceZ = new long[n];
-        long[] differenceSum = new long[n];
         
-        //для вычисления минимального количества операций
-        long minOperationsX = Long.MAX_VALUE;
-        long minOperationsY = Long.MAX_VALUE;
-        long minOperationsZ = Long.MAX_VALUE;
-        
-        /*
-        long minOperationsXOld = Long.MAX_VALUE;
-        long minOperationsYOld = Long.MAX_VALUE;
-        long minOperationsZOld = Long.MAX_VALUE;
-        long minOperationsTemp = Long.MAX_VALUE;
-        //запоминать индексы для разных
-        int indexX = 0; 
-        int indexY = 0;
-        int indexZ = 0; 
-        */
-        
-        for (int i = 0; i < n; i++) {
-            differenceX[i] = (x - a[i] % x) % x;
-            differenceY[i] = (y - a[i] % y) % y;
-            differenceZ[i] = (z - a[i] % z) % z;
+        for (int i = 0; i < n; i++)
+            a[i] = scanner.nextLong();
+
+        long lcmXY = lcm(x, y);
+        long lcmXZ = lcm(x, z);
+        long lcmYZ = lcm(y, z);
+        long lcmXYZ = lcm(lcmXY, z);
+
+        long minXYZ = Long.MAX_VALUE;
+        long minX = Long.MAX_VALUE;
+        long minY = Long.MAX_VALUE;
+        long minZ = Long.MAX_VALUE;
+        long minXY = Long.MAX_VALUE;
+        long minXZ = Long.MAX_VALUE;
+        long minYZ = Long.MAX_VALUE;
+
+        for (long num : a) {
+            long costXYZ = (lcmXYZ - (num % lcmXYZ)) % lcmXYZ;
+            minXYZ = Math.min(minXYZ, costXYZ);
             
-            /*
-            //если все разные
-            if((differenceX[i] != differenceY[i]) & (differenceY[i] != differenceZ[i]) & (differenceX[i] != differenceZ[i])) {
-                //проверка: если значение стало меньше, запоминаем новый индекс 
-                minOperationsXOld = minOperationsX;
-                minOperationsX = Math.min(minOperationsX, differenceX[i]);
-                if(minOperationsX != minOperationsXOld) indexX = i;
-                
-                minOperationsYOld = minOperationsY;
-                minOperationsY = Math.min(minOperationsY, differenceY[i]);
-                if(minOperationsY != minOperationsYOld) indexY = i;
-                
-                minOperationsZOld = minOperationsZ;
-                minOperationsZ = Math.min(minOperationsZ, differenceZ[i]);
-                if(minOperationsZ != minOperationsZOld) indexZ = i;
-            } */
-            
-        }
-        /*if((indexX == indexY) & (indexX == indexZ) & (indexZ == indexY)) {
-            if((a[indexX] + (x - a[indexX])) % x == 0)
-        }*/
-        minOperationsTemp = minOperationsX + minOperationsY + minOperationsZ;
-        if(minOperationsTemp != Long.MAX_VALUE) {
-            System.out.println(minOperationsTemp);
-            return;
-        }
-        else {    
-            for (int i = 0; i < n; i++) {    
-                if(differenceX[i] == differenceY[i]){
-                    for (int j = 0; j < n; j++) {
-                        differenceSum[j] = differenceZ[j] + differenceX[i];
-                    }
-                    for (int j = 0; j < n; j++) { //поиск минимальной разницы стоимости операций
-                        if(differenceSum[j] < minOperationsTemp) minOperationsTemp = differenceSum[j];
-                    }
-                }
-                else if(differenceX[i] == differenceZ[i]){
-                    for (int j = 0; j < n; j++) {
-                        differenceSum[j] = differenceY[j] + differenceX[i];
-                    }
-                    for (int j = 0; j < n; j++) { //поиск минимальной разницы стоимости операций
-                        if(differenceSum[j] < minOperationsTemp) minOperationsTemp = differenceSum[j];
-                    }
-                }
-                else if(differenceY[i] == differenceZ[i]){
-                    for (int j = 0; j < n; j++) {
-                        differenceSum[j] = differenceZ[j] + differenceY[i];
-                    }
-                    for (int j = 0; j < n; j++) { //поиск минимальной разницы стоимости операций
-                        if(differenceSum[j] < minOperationsTemp) minOperationsTemp = differenceSum[j];
-                    }
-                }
-              }
+            long costX = (x - (num % x)) % x;
+            minX = Math.min(minX, costX);
+
+            long costY = (y - (num % y)) % y;
+            minY = Math.min(minY, costY);
+
+            long costZ = (z - (num % z)) % z;
+            minZ = Math.min(minZ, costZ);
+
+            long costXY = (lcmXY - (num % lcmXY)) % lcmXY;
+            minXY = Math.min(minXY, costXY);
+
+            long costXZ = (lcmXZ - (num % lcmXZ)) % lcmXZ;
+            minXZ = Math.min(minXZ, costXZ);
+
+            long costYZ = (lcmYZ - (num % lcmYZ)) % lcmYZ;
+            minYZ = Math.min(minYZ, costYZ);
         }
 
-        // Вывод результата
-        //long totalMinOperations = minOperationsX + minOperationsY + minOperationsZ;
-        System.out.println(minOperationsTemp);
+        long[] minimalOperations = { minX + minY + minZ,
+                        minXY + minZ,
+                        minXY + minYZ,
+                        minXY + minXZ,
+                        minXZ + minY,
+                        minXZ + minYZ,
+                        minYZ + minX,
+                        minXYZ
+        };
+        long res = Long.MAX_VALUE;
+        
+        for (long min : minimalOperations)
+            res = Math.min(res, min);
+
+        System.out.println(res);
+    }
+    
+    //нод
+    public static long gcd(long a, long b) {
+        return b == 0 ? a : gcd(b, a % b);
+    }
+
+    //нок
+    public static long lcm(long a, long b) {
+        return a / gcd(a, b) * b;
     }
 }
